@@ -1,0 +1,19 @@
+#!/bin/bash
+
+CORE="0"
+PROGRAM="ex01_example"
+echo Profiling program $PROGRAM on core $CORE
+
+echo ================================================================================
+echo
+
+for i in FLOPS_DP L2 L2CACHE
+do
+	echo Measuring performance for event group $i \
+	     using the marker api...
+
+	likwid-perfctr -C $CORE -g $i -m ./$PROGRAM 
+
+	echo ================================================================================
+	echo
+done

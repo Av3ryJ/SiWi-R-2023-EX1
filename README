@@ -1,0 +1,16 @@
+In order to compile this example on the Meggie cluster, you have to load modules as follows:
+
+module load likwid mkl intel cmake
+
+In order to build the code you can either use the provided Makefile:
+
+make
+
+Or the provided CMakeLists.txt:
+
+cmake .
+make
+
+Use the likwid script to measure the performance:
+
+./likwidScript
