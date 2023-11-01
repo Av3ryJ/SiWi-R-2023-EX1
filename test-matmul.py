@@ -1,9 +1,9 @@
 import subprocess
 
 binary = "matmul.exe"
-matrices = [["./matrices/testMatrices/A.in", "./matrices/testMatrices/B.in", "./matrices/testMatrices/C.out"],
-            ["./matrices/testMatrices/A1.in", "./matrices/testMatrices/B1.in", "./matrices/testMatrices/C1.out"],
-            ["./matrices/testMatrices/A2.in", "./matrices/testMatrices/B2.in", "./matrices/testMatrices/C2.out"]]
+matrices = [["I", "./matrices/testMatrices/A.in", "./matrices/testMatrices/B.in", "./matrices/testMatrices/C.out"],
+            ["II", "./matrices/testMatrices/A1.in", "./matrices/testMatrices/B1.in", "./matrices/testMatrices/C1.out"],
+            ["III", "./matrices/testMatrices/A2.in", "./matrices/testMatrices/B2.in", "./matrices/testMatrices/C2.out"]]
 
 
 def run_matmul(mat1, mat2, out):
@@ -20,6 +20,6 @@ def compare(answer, solution):
 
 if __name__ == '__main__':
     for mat in matrices:
-        out = "out"
-        run_matmul(mat[0], mat[1], out)
-        compare(out, mat[2])
+        out = f"out{mat[0]}"
+        run_matmul(mat[1], mat[2], out)
+        compare(out, mat[3])
