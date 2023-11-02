@@ -7,7 +7,7 @@ matrices = [["I", "./matrices/testMatrices/A.in", "./matrices/testMatrices/B.in"
 
 
 def run_matmul(mat1, mat2, out):
-    subprocess.run([binary, mat1, mat2, f">{out}"])
+    subprocess.run([binary, mat1, mat2, out])
 
 
 def compare(answer, solution):
@@ -20,6 +20,6 @@ def compare(answer, solution):
 
 if __name__ == '__main__':
     for mat in matrices:
-        out = f"out{mat[0]}"
+        out = f"out{mat[0]}.txt"
         run_matmul(mat[1], mat[2], out)
         compare(out, mat[3])
