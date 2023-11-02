@@ -1,0 +1,12 @@
+/out
+/matmul.o
+/matmul.exe
+/matrices/
+/.fleet/
+/.cache/
+/.idea/
+/CMakeFiles/
+/CMakeCache.txt
+/out1.txt
+/out2.txt
+/out3.txt
