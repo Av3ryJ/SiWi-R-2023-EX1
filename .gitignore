@@ -1,7 +1,6 @@
 /out
 /matmul.o
 /matmul.exe
-/matrices/
 /.fleet/
 /.cache/
 /.idea/
@@ -10,3 +9,4 @@
 /out1.txt
 /out2.txt
 /out3.txt
+/cmake-build-debug/

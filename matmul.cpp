@@ -12,31 +12,34 @@ int n;
 
 if (argc < 4) {
     std::cout << "Usage: matmul <mat1.in> <mat2.in> <output.out>" << std::endl;
+return -1;
 }
-
+//MatA
+std::string temp;
 //Daten aus Dateien einlesen
-
-std::string dateiA = argv[1];
-std::ifstream fileA(dateiA);
+std::ifstream fileA (argv[1]);
 fileA>> m;
-fileA>>k;
-double MatA[m*k];
-for(int i=0; i<(m*k); i++){
+fileA>> k;
+
+double *MatA = new double[m*k];
+
+for (int i=0; i<(m*k); i++) {
     fileA>>MatA[i];
 }
-std::string dateiB = argv[2];
-std::ifstream fileB(dateiB);
-fileB>>k;
-fileB>>n;
-double MatB[k*n];
+//MatB
+std::ifstream fileB(argv[2]);
+fileB>> k;
+fileB>> n;
+
+double *MatB = new double[k*n];
+
 for(int i=0; i<(k*n); i++){
     fileB>>MatB[i];
 }
-
+//set outfile
 std::string outfile = argv[3];
-    
-double MatC[m*n];
-
+//matC and time
+double *MatC = new double[m*n];
 double time = 100.0;
 
 #ifdef USE_LIKWID
@@ -46,15 +49,15 @@ double time = 100.0;
 
 siwir::Timer timer;
 
-   for( int n = 0; n < 1000; ++n )
+   for( int x = 0; x < 1; ++x ) // TODO: change back to 1000
    {
     timer.reset();
     // the next for is needed bc timer.h is too slow to track small multiplications
-    for( int i = 0; i < 10000; ++i ){
-        for(int zeilen=0; zeilen<m; ++zeilen){
-            for(int spaltenB=0; spaltenB<n; ++spaltenB){
-                for(int spaltenA=0; spaltenA<k; ++spaltenA){
-                    MatC[zeilen*n+spaltenA]+= MatA[zeilen*k+spaltenA]*MatB[spaltenA*n+spaltenB];
+    for( int i = 0; i < 1; ++i ){ // TODO: change back to 10000
+        for(int zeilenC=0; zeilenC<m; ++zeilenC){
+            for(int spaltenC=0; spaltenC<n; ++spaltenC){
+                for(int spaltenA=0; spaltenA<k; ++spaltenA){ //spaltenA = zeilenB
+                    MatC[n*zeilenC + spaltenC] += MatA[k*zeilenC + spaltenA] * MatB[n*spaltenA + spaltenC]; // C(i,k) += A(i,j) * B(j,k)
                 }
             }
         }
@@ -65,13 +68,17 @@ siwir::Timer timer;
 #ifdef USE_LIKWID
    likwid_markerStopRegion( "array" );
 #endif
+std::cout << "time: " << time << std::endl;
 
-ofstream f (outfile);
-f << m << n << std::endl;
+std::ofstream fileO (outfile);
+fileO << m << " " << n << std::endl;
 for(int i = 0; i<(m*n); ++i) {
-    f << MatC[i] << "\n";
+  fileO << MatC[i] << "\n";
 }
-f.close();
+fileO.close();
+delete [] MatA;
+delete [] MatB;
+delete [] MatC;
 }
 
 /*
