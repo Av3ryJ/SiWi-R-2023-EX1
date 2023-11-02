@@ -10,7 +10,9 @@ int m;
 int k;
 int n;
 
-std::cout << "Hello World!" << std::endl;
+if (argc < 4) {
+    std::cout << "Usage: matmul <mat1.in> <mat2.in> <output.out>
+}
 
 //Daten aus Dateien einlesen
 
@@ -30,6 +32,9 @@ double MatB[k*n];
 for(int i=0; i<(k*n); i++){
     fileB>>MatB[i];
 }
+
+std::string outfile = argv[3];
+    
 double MatC[m*n];
 
 double time = 100.0;
@@ -44,6 +49,7 @@ siwir::Timer timer;
    for( int n = 0; n < 1000; ++n )
    {
     timer.reset();
+    // the next for is needed bc timer.h is too slow to track small multiplications
     for( int i = 0; i < 10000; ++i ){
         for(int zeilen=0; zeilen<m; ++zeilen){
             for(int spaltenB=0; spaltenB<n; ++spaltenB){
@@ -60,10 +66,12 @@ siwir::Timer timer;
    likwid_markerStopRegion( "array" );
 #endif
 
-std::cout << m << n << "\n";
+ofstream f (outfile);
+f << m << n << std::endl;
 for(int i = 0; i<(m*n); ++i) {
-    std::cout << MatC[i] << "\n";
+    f << MatC[i] << "\n";
 }
+f.close();
 }
 
 /*
