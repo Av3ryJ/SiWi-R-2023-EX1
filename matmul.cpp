@@ -11,7 +11,7 @@ int k;
 int n;
 
 if (argc < 4) {
-    std::cout << "Usage: matmul <mat1.in> <mat2.in> <output.out>
+    std::cout << "Usage: matmul <mat1.in> <mat2.in> <output.out>" << std::endl;
 }
 
 //Daten aus Dateien einlesen
