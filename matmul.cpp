@@ -5,6 +5,9 @@
 #include <string>
 // Matrix A m*k, Matrix B k*n --> Matrix C m*n
 
+void naive(double *MatA, double *MatB, double *MatC, int m, int k, int n);
+void null_matrix(double *MatC, int size);
+
 int main(int argc, char* argv[]){
     int m;
     int k;
@@ -44,22 +47,22 @@ int main(int argc, char* argv[]){
     //MatC and time
     double *MatC = new double[m*n];
     double time = 100.0;
+    siwir::Timer timer;
 
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "array" );
     #endif
 
-    siwir::Timer timer;
 
     //naive implementation
-    int limit = 1;              // TODO: change back to 1000
+    int limit = 2;              // TODO: change back to 1000
     for( int x = 0; x < limit; ++x ) {
         timer.reset();
         naive(MatA, MatB, MatC, m, k, n);
         time = std::min(time, timer.elapsed());
         if (x != limit - 1) {
-            delete [] MatC;
+            null_matrix(MatC, m*n);
         }
     }
 
@@ -68,8 +71,6 @@ int main(int argc, char* argv[]){
     #ifdef USE_LIKWID
         likwid_markerStopRegion( "array" );
     #endif
-
-    std::cout << "time: " << time << std::endl;
 
     std::ofstream fileO (outfile);
     fileO << m << " " << n << std::endl;
@@ -82,11 +83,11 @@ int main(int argc, char* argv[]){
     delete [] MatC;
 }
 
-/*
-matrix Mul:
-c11 = a11*b11 + a12*b21
-c11
-*/
+void null_matrix(double *MatC, int size){
+    for (int i = 0; i < size; ++i) {
+        MatC[i] = 0;
+    }
+}
 
 void naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     // the next for is needed bc timer.h is too slow to track small multiplications

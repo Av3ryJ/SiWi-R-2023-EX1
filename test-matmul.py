@@ -7,7 +7,8 @@ matrices = [["./matrices/testMatrices/A.in", "./matrices/testMatrices/B.in", "./
 
 
 def run_matmul(mat1, mat2, outfile):
-    subprocess.run([binary, mat1, mat2, outfile])
+    result = subprocess.run([binary, mat1, mat2, outfile], capture_output=True, text=True)
+    print(f"{result.stdout}")
 
 
 def compare(answer, solution):
@@ -16,7 +17,6 @@ def compare(answer, solution):
     with open(solution) as sol:
         sol_arr = sol.readlines()
     assert ans_arr == sol_arr, "Not the same"
-    print(f"{answer} and {solution} are identical")
 
 
 if __name__ == '__main__':
