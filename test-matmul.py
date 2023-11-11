@@ -8,7 +8,7 @@ matrices = [["./matrices/testMatrices/A.in", "./matrices/testMatrices/B.in", "./
 
 def run_matmul(mat1, mat2, outfile):
     print(f"running: {outfile}")
-    result = subprocess.run([binary, mat1, mat2, outfile, "OPT2"], capture_output=True, text=True)
+    result = subprocess.run([binary, mat1, mat2, outfile, "STD"], capture_output=True, text=True)
     print(f"{result.stdout}")
 
 

@@ -274,10 +274,6 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     int size = 512; // start at 512 bc cannot be smaller
     while (largest > size) size *= 2;
     size /= 2; // size of the four sub-matrices
-    // calc needed padding:
-    int padA = size-m; // pad MatA unten
-    int padBoth = size-m; // pad MatA rechts und B unten
-    int padB = size-m; //pad MatB rechts
 
     //1.2 Divide
     //Only malloc one large array to save time
@@ -296,6 +292,7 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     double *A22 = A11pA22+(size * size *11);
     double *B11 = A11pA22+(size * size *12);
     double *B22 = A11pA22+(size * size *13);
+
     //populate with padding if necessary
     int off_r;
     int off_c;
@@ -307,26 +304,26 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     double val_B12;
     double val_B21;
     double val_B22;
-
+    //std::cout << "Size is: " << size << std::endl;
     for (int row = 0; row < size; ++row){
         off_r = row+size;
-        //std::cout << "Populating row: " << row << std::endl;
+        //if (row > 1) std::cout << "Populating row: " << row << std::endl;
         for (int col = 0; col < size; ++col){
             off_c = col+size;
             //std::cout << col << std::endl;
             //values of mats first to reduce comparisons
-            val_A11 = MatA[col+(row*k)];
-            val_A12 = off_c > k ? 0 : MatA[off_c+(row*k)];
-            val_A21 = off_r > m ? 0 : MatA[col+(off_r*k)];
-            val_A22 = off_c > k || off_r > m ? 0 : MatA[(off_c)+(off_r*k)];
-            val_B11 = MatB[col+(row*n)];
-            val_B12 = off_c > n ? 0 : MatB[off_c+(row*n)];
-            val_B21 = off_r > k ? 0 : MatB[col+(off_r*n)];
-            val_B22 = off_c > n || off_r > k ? 0 : MatB[(off_c)+(off_r*n)];
+            val_A11 = col >= k || row >= m ? 0 : MatA[col+(row*k)];
+            val_A12 = off_c >= k || row >= m ? 0 : MatA[off_c+(row*k)];
+            val_A21 = col >= k || off_r >= m ? 0 : MatA[col+(off_r*k)];
+            val_A22 = off_c >= k || off_r >= m ? 0 : MatA[(off_c)+(off_r*k)];
+            val_B11 = col >= n || row >= k ? 0 : MatB[col+(row*n)];
+            val_B12 = off_c >= n || row >= k ? 0 : MatB[off_c+(row*n)];
+            val_B21 = col >= n || off_r >= k ? 0 : MatB[col+(off_r*n)];
+            val_B22 = off_c >= n || off_r >= k ? 0 : MatB[(off_c)+(off_r*n)];
 
-            A11pA22[col+(row*size)] = val_A11 + val_A22; // Padding only in A12 A21 A22
-            B11pB22[col+(row*size)] = val_B11 + val_B22; // Padding only in B12 B21 B22
-            A21pA22[col+(row*size)] = val_A21 + val_A22; // offset = size; if (offset+<row/col> larger than <m/k/n> use 0
+            A11pA22[col+(row*size)] = val_A11 + val_A22;
+            B11pB22[col+(row*size)] = val_B11 + val_B22;
+            A21pA22[col+(row*size)] = val_A21 + val_A22;
             B12mB22[col+(row*size)] = val_B12 - val_B22;
             B21mB11[col+(row*size)] = val_B21 - val_B11;
             A11pA12[col+(row*size)] = val_A11 + val_A12;
@@ -363,10 +360,16 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
         off_r = row+size;
         for (int col = 0; col < size; ++col){
             off_c = col+size;
-            // C11 = M1 + M4 - M5 + M7
-            MatC[col+(row*n)] = M1[col+(row*size)]+M4[col+(row*size)]-M5[col+(row*size)]+M7[col+(row*size)]; // C11 = M1 + M4 - M5 + M7
-            if (off_c < n) MatC[off_c+(row*n)] = M3[col+(row*size)]+M5[col+(row*size)]; // C12 = M3 + M5
-            if (off_r < m) MatC[col+(off_r*n)] = M2[col+(row*size)]+M4[col+(row*size)]; // C21 = M2 + M4
+
+            if (row < m && col < n) { // C11 = M1 + M4 - M5 + M7
+                MatC[col + (row * n)] = M1[col + (row * size)] + M4[col + (row * size)] - M5[col + (row * size)] + M7[col + (row * size)];
+            }
+            if (off_c < n) { // C12 = M3 + M5
+                MatC[off_c+(row*n)] = M3[col+(row*size)]+M5[col+(row*size)];
+            }
+            if (off_r < m) { // C21 = M2 + M4
+                MatC[col+(off_r*n)] = M2[col+(row*size)]+M4[col+(row*size)];
+            }
             if (off_c < n && off_r < m) { // C22 = M1 - M2 + M3 + M6
                 MatC[off_c+(off_r*n)] = M1[col+(row*size)]-M2[col+(row*size)]+M3[col+(row*size)]+M6[col+(row*size)];
             }
