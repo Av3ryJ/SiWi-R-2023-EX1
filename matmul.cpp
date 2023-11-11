@@ -19,6 +19,10 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
 void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void null_matrix(double *MatC, int size);
 
+void print_matrix(double *Mat, int size) {
+
+}
+
 int main(int argc, char* argv[]){
     int m;
     int k;
@@ -26,7 +30,7 @@ int main(int argc, char* argv[]){
     // Matrix A m*k, Matrix B k*n --> Matrix C m*n
     
     // Number of timing runs. Needed, if multiplying small matrices
-    int timing_runs = 1; // TODO: change back to 1000
+    int timing_runs = 2; // TODO: change back to 1000
     
     if (argc < 4) {
         std::cout << "Usage: matmul <mat1.in> <mat2.in> <output.out> optional: <VAR>" << std::endl;
@@ -248,7 +252,7 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
         }
     }
 
-    std::cout << time << " STD" << std::endl;
+    std::cout << time << " OPT2" << std::endl;
 
     #ifdef USE_LIKWID
         likwid_markerStopRegion( "array" );
@@ -258,10 +262,9 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
 void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     // Matrix A m*k, Matrix B k*n --> Matrix C m*n
     //1. If size >> 512 Divide MatA, MatB and MatC in four sub mats
-    std::cout << "Reached Strassen()" << std::endl;
-    std::cout << "m, k, n: " << m << k << n << std::endl;
-    if (m < 512 || k < 512 || n < 512) {
-        // TODO: Do naive or transposed
+
+    if (m <= 512 || k <= 512 || n <= 512) {
+        naive(MatA, MatB, MatC, m, k, n);
         return;
     }
     //1.1 Zero pad if necessary
@@ -275,24 +278,24 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     int padA = size-m; // pad MatA unten
     int padBoth = size-m; // pad MatA rechts und B unten
     int padB = size-m; //pad MatB rechts
-    std::cout << "Size is: " << size << std::endl;
 
     //1.2 Divide
     //Only malloc one large array to save time
-    double *A11pA22 = new double[size * 14]; // A11 + A22
-    double *B11pB22 = A11pA22+(size*1); // B11 + B22
-    double *A21pA22 = A11pA22+(size*2); // etc.
-    double *B12mB22 = A11pA22+(size*3);
-    double *B21mB11 = A11pA22+(size*4);
-    double *A11pA12 = A11pA22+(size*5);
-    double *A21mA11 = A11pA22+(size*6);
-    double *B11pB12 = A11pA22+(size*7);
-    double *A12mA22 = A11pA22+(size*8);
-    double *B21pB22 = A11pA22+(size*9);
-    double *A11 = A11pA22+(size*10);
-    double *A22 = A11pA22+(size*11);
-    double *B11 = A11pA22+(size*12);
-    double *B22 = A11pA22+(size*13);
+
+    double *A11pA22 = new double[size * size * 14]; // A11 + A22
+    double *B11pB22 = A11pA22+(size * size *1); // B11 + B22
+    double *A21pA22 = A11pA22+(size * size*2); // etc.
+    double *B12mB22 = A11pA22+(size * size*3);
+    double *B21mB11 = A11pA22+(size * size*4);
+    double *A11pA12 = A11pA22+(size * size*5);
+    double *A21mA11 = A11pA22+(size * size*6);
+    double *B11pB12 = A11pA22+(size * size*7);
+    double *A12mA22 = A11pA22+(size * size*8);
+    double *B21pB22 = A11pA22+(size * size*9);
+    double *A11 = A11pA22+(size * size *10);
+    double *A22 = A11pA22+(size * size *11);
+    double *B11 = A11pA22+(size * size *12);
+    double *B22 = A11pA22+(size * size *13);
     //populate with padding if necessary
     int off_r;
     int off_c;
@@ -305,23 +308,21 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     double val_B21;
     double val_B22;
 
-    std::cout << "Matrix and value stuff done" << std::endl;
-
     for (int row = 0; row < size; ++row){
         off_r = row+size;
-        std::cout << "Populating row: " << row << std::endl;
+        //std::cout << "Populating row: " << row << std::endl;
         for (int col = 0; col < size; ++col){
             off_c = col+size;
             //std::cout << col << std::endl;
             //values of mats first to reduce comparisons
-            val_A11 = 0; //MatA[col+(row*k)];
-            val_A12 = 0; //off_c > k ? 0 : MatA[off_c+(row*k)];
-            val_A21 = 0; //off_r > m ? 0 : MatA[col+(off_r*k)];
-            val_A22 = 0; //off_c > k || off_r > m ? 0 : MatA[(off_c)+(off_r*k)];
-            val_B11 = 0; //MatB[col+(row*n)];
-            val_B12 = 0; //off_c > n ? 0 : MatB[off_c+(row*n)];
-            val_B21 = 0; //off_r > k ? 0 : MatB[col+(off_r*n)];
-            val_B22 = 0; //off_c > n || off_r > k ? MatB[(off_c)+(off_r*n)] : 0;
+            val_A11 = MatA[col+(row*k)];
+            val_A12 = off_c > k ? 0 : MatA[off_c+(row*k)];
+            val_A21 = off_r > m ? 0 : MatA[col+(off_r*k)];
+            val_A22 = off_c > k || off_r > m ? 0 : MatA[(off_c)+(off_r*k)];
+            val_B11 = MatB[col+(row*n)];
+            val_B12 = off_c > n ? 0 : MatB[off_c+(row*n)];
+            val_B21 = off_r > k ? 0 : MatB[col+(off_r*n)];
+            val_B22 = off_c > n || off_r > k ? 0 : MatB[(off_c)+(off_r*n)];
 
             A11pA22[col+(row*size)] = val_A11 + val_A22; // Padding only in A12 A21 A22
             B11pB22[col+(row*size)] = val_B11 + val_B22; // Padding only in B12 B21 B22
@@ -341,16 +342,14 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
         }
     }
 
-    std::cout << "Populated Mats" << std::endl;
-
     //Only one new "M"-Array to save time malloc-ing
-    double *M1 = new double[size * 7]; // (A11 + A22)(B11 + B22)
-    double *M2 = M1+(size * 1); // (A21 + A22)B11
-    double *M3 = M1+(size * 2); // A11(B12 - B22)
-    double *M4 = M1+(size * 3); // A22(B21 - B11)
-    double *M5 = M1+(size * 4); // (A11 + A12)B22
-    double *M6 = M1+(size * 5); // (A21 - A11)(B11 + B12)
-    double *M7 = M1+(size * 6); // (A12 - A22)(B21 + B22)
+    double *M1 = new double[size * size * 7]; // (A11 + A22)(B11 + B22)
+    double *M2 = M1+(size * size * 1); // (A21 + A22)B11
+    double *M3 = M1+(size * size * 2); // A11(B12 - B22)
+    double *M4 = M1+(size * size * 3); // A22(B21 - B11)
+    double *M5 = M1+(size * size * 4); // (A11 + A12)B22
+    double *M6 = M1+(size * size * 5); // (A21 - A11)(B11 + B12)
+    double *M7 = M1+(size * size * 6); // (A12 - A22)(B21 + B22)
     //2. recall self with smaller mats
     Strassen(A11pA22, B11pB22, M1, size, size, size);
     Strassen(A21pA22, B11, M2, size, size, size);
