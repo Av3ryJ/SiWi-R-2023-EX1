@@ -18,7 +18,7 @@ void naive(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int n);
-double *transpose(double *mat, int m, int k, double *mat_t);
+void transpose(double *mat, int m, int k, double *mat_t);
 void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void StrassenQuad(double *MatA, double *MatB, double *MatC, int s);
@@ -209,7 +209,7 @@ void Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     }
 }
 
-double *transpose(double *mat, int m, int k, double *mat_t) {
+void transpose(double *mat, int m, int k, double *mat_t) {
     int blocksize = 16;
     for (; blocksize > 0; blocksize--) {
         if (m%blocksize == 0) break;
