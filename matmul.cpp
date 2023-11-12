@@ -207,6 +207,8 @@ void Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
             }
         }
     }
+    //free B_transposed
+    delete [] B_transposed;
 }
 
 void transpose(double *mat, int m, int k, double *mat_t) {
@@ -235,8 +237,6 @@ void transpose(double *mat, int m, int k, double *mat_t) {
             mat_t[((int(k/blocksize)*blocksize) + col)*m + row] = mat[row*k + (int(k/blocksize)*blocksize) + col];
         }
     }
-
-    return mat_t;
 }
 
 void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
@@ -375,6 +375,8 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     StrassenQuad(A11pA12, B22, M5, size);
     StrassenQuad(A21mA11, B11pB12, M6, size);
     StrassenQuad(A12mA22, B21pB22, M7, size);
+    //free A12pA22 + all following matrices
+    delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
@@ -396,6 +398,8 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
             }
         }
     }
+    //free M1 + all following matrices
+    delete [] M1;
 }
 
 // This Strassen only works for 2^n square matrices
@@ -491,6 +495,8 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s) {
     StrassenQuad(A11pA12, B22, M5, size);
     StrassenQuad(A21mA11, B11pB12, M6, size);
     StrassenQuad(A12mA22, B21pB22, M7, size);
+    //free A11pA22 + all following matrices
+    delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
@@ -507,4 +513,6 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s) {
             MatC[off_c+(off_r*s)] = M1[index]-M2[index]+M3[index]+M6[index];
         }
     }
+    //free M1 + all following matrices
+    delete [] M1;
 }
