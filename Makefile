@@ -14,7 +14,7 @@ INCLUDES += -I/apps/likwid/5.2.1/include
 LDFLAGS += -L/apps/likwid/5.2.1/lib
 LIBS += -llikwid
 
-TARGET = ex01_example
+TARGET = matmul
 OBJS = $(TARGET).o
 
 all: $(TARGET)
