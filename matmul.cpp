@@ -1,14 +1,29 @@
+/* in der Konsole:
+module load mkl
+module load intel
+module load openmpi
+module load likwid/5.2.2
+
+für Messungen mit Likwid:
+likwid-perfctr -C 0 -g FLOPS_DP (oder L2 oder L2CACHE) -m ./matmul matrices/testMatrices/A.in matrices/testMatrices/B.in C.out STD/BLAS/OPT
+*/
+
 #include "Timer.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
 #include <string>
-/*
+
 extern "C" {
 #include <mkl_cblas.h>
 #include <mkl.h>
 }
-*/
+
+#ifdef USE_LIKWID
+extern "C" {
+#include <likwid.h>
+}
+#endif
 
 #define MIN_STRASSEN_SIZE 256
 #define TIMING_RUNS 1
@@ -110,7 +125,7 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     
     #ifdef USE_LIKWID
         likwid_markerInit();
-        likwid_markerStartRegion( "array" );
+        likwid_markerStartRegion( "naiv" );
     #endif
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
@@ -125,7 +140,8 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     std::cout << time << " STD" << std::endl;
 
     #ifdef USE_LIKWID
-        likwid_markerStopRegion( "array" );
+        likwid_markerStopRegion( "naiv" );
+         likwid_markerClose();
     #endif
 }
 
@@ -149,7 +165,7 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     
     #ifdef USE_LIKWID
         likwid_markerInit();
-        likwid_markerStartRegion( "array" );
+        likwid_markerStartRegion( "blas" );
     #endif
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
@@ -164,7 +180,8 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     std::cout << time << " STD" << std::endl;
 
     #ifdef USE_LIKWID
-        likwid_markerStopRegion( "array" );
+        likwid_markerStopRegion( "blas" );
+        likwid_markerClose();
     #endif
 }
 
@@ -175,7 +192,7 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
     
     #ifdef USE_LIKWID
         likwid_markerInit();
-        likwid_markerStartRegion( "array" );
+        likwid_markerStartRegion( "transposed" );
     #endif
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
@@ -190,7 +207,8 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
     std::cout << time << " OPT1" << std::endl;
 
     #ifdef USE_LIKWID
-        likwid_markerStopRegion( "array" );
+        likwid_markerStopRegion( "transposed" );
+        likwid_markerClose();
     #endif
 }
 
@@ -246,7 +264,7 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n)
     
     #ifdef USE_LIKWID
         likwid_markerInit();
-        likwid_markerStartRegion( "array" );
+        likwid_markerStartRegion( "strassen" );
     #endif
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
@@ -267,7 +285,8 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n)
     std::cout << time << " OPT2" << std::endl;
 
     #ifdef USE_LIKWID
-        likwid_markerStopRegion( "array" );
+        likwid_markerStopRegion( "strassen" );
+        likwid_markerClose();
     #endif
 }
 
