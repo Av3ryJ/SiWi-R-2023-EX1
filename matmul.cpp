@@ -26,6 +26,7 @@ extern "C" {
 #endif
 
 #define MIN_STRASSEN_SIZE 256
+#define RUNS_PER_TIMING_FACTOR 4096
 #define TIMING_RUNS 1
 
 void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n);
@@ -35,8 +36,8 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
 void Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void transpose(double *mat, int m, int k, double *mat_t);
 void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n);
-void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n);
-void StrassenQuad(double *MatA, double *MatB, double *MatC, int s);
+void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n));
+void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n));
 void null_matrix(double *MatC, int size);
 
 int main(int argc, char* argv[]){
@@ -85,7 +86,7 @@ int main(int argc, char* argv[]){
 
     //Decide which implementation to use
     if (var == ""){
-        // TODO: Use fastest
+        use_Strassen(MatA, MatB, MatC, m, k, n);
     }
     if (var == "STD"){
         use_naive(MatA, MatB, MatC, m, k, n);
@@ -97,7 +98,10 @@ int main(int argc, char* argv[]){
         use_Transposed(MatA, MatB, MatC, m, k, n);   //transposed
     }
     if (var == "OPT2"){
-        use_Strassen(MatA, MatB, MatC, m, k, n);   //strassen
+        use_Strassen(MatA, MatB, MatC, m, k, n, naive);   //strassen
+    }
+    if (var == "OPT3"){
+        use_Strassen(MatA, MatB, MatC, m, k, n, Transposed);   //strassen + transposed for smaller blocks
     }
 
     std::ofstream fileO (outfile);
@@ -122,7 +126,7 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     
     double time = 100.0;
     siwir::Timer timer;
-    
+    double runs = RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "naiv" );
@@ -130,13 +134,15 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
-        naive(MatA, MatB, MatC, m, k, n);
+        for( int i = 0; i < runs; ++i ) {
+            naive(MatA, MatB, MatC, m, k, n);
+        }
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
         }
     }
-
+    time /= runs;
     std::cout << time << " STD" << std::endl;
 
     #ifdef USE_LIKWID
@@ -147,12 +153,10 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 
 void naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     // the next for is needed bc timer.h is too slow to track small multiplications
-    for( int i = 0; i < 1; ++i ){ // TODO: change back to 10000
-        for(int zeilenC=0; zeilenC<m; ++zeilenC){
-            for(int spaltenC=0; spaltenC<n; ++spaltenC){
-                for(int spaltenA=0; spaltenA<k; ++spaltenA){ //spaltenA = zeilenB
-                    MatC[n*zeilenC + spaltenC] += MatA[k*zeilenC + spaltenA] * MatB[n*spaltenA + spaltenC]; // C(i,k) += A(i,j) * B(j,k)
-                }
+    for(int zeilenC=0; zeilenC<m; ++zeilenC){
+        for(int spaltenC=0; spaltenC<n; ++spaltenC){
+            for(int spaltenA=0; spaltenA<k; ++spaltenA){ //spaltenA = zeilenB
+                MatC[n*zeilenC + spaltenC] += MatA[k*zeilenC + spaltenA] * MatB[n*spaltenA + spaltenC]; // C(i,k) += A(i,j) * B(j,k)
             }
         }
     }
@@ -162,7 +166,7 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 
     double time = 100.0;
     siwir::Timer timer;
-    
+    double runs = RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "blas" );
@@ -170,13 +174,15 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
-        //cblas_dgemm( CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m );
+        for( int i = 0; i < runs; ++i ) {
+            cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m);
+        }
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
         }
     }
-
+    time /= runs;
     std::cout << time << " STD" << std::endl;
 
     #ifdef USE_LIKWID
@@ -189,7 +195,7 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
     
     double time = 100.0;
     siwir::Timer timer;
-    
+    double runs = RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "transposed" );
@@ -197,13 +203,15 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
-        Transposed(MatA, MatB, MatC, m, k, n);
+        for( int i = 0; i < runs; ++i ) {
+            Transposed(MatA, MatB, MatC, m, k, n);
+        }
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
         }
     }
-
+    time /= runs;
     std::cout << time << " OPT1" << std::endl;
 
     #ifdef USE_LIKWID
@@ -261,7 +269,7 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n)
     
     double time = 100.0;
     siwir::Timer timer;
-    
+    double runs = RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "strassen" );
@@ -273,15 +281,17 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n)
         int size = 2;
         while (m > size) size *=2;
         bool is_squared = (size == m && size == k && size == n);
-        // if both are squared we can use StrassenQuad for better performance
-        if (is_squared) StrassenQuad(MatA, MatB, MatC, size);
-        else Strassen(MatA, MatB, MatC, m, k, n);
+        for( int i = 0; i < runs; ++i ) {
+            // if both are squared we can use StrassenQuad for better performance
+            if (is_squared) StrassenQuad(MatA, MatB, MatC, size);
+            else Strassen(MatA, MatB, MatC, m, k, n);
+        }
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
         }
     }
-
+    time /= runs;
     std::cout << time << " OPT2" << std::endl;
 
     #ifdef USE_LIKWID
@@ -290,12 +300,12 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n)
     #endif
 }
 
-void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
+void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n)) {
     // Matrix A m*k, Matrix B k*n --> Matrix C m*n
     //1. If size >> MIN_STRASSEN_SIZE Divide MatA, MatB and MatC in four sub mats
     
     if (m <= MIN_STRASSEN_SIZE || k <= MIN_STRASSEN_SIZE || n <= MIN_STRASSEN_SIZE) {
-        Transposed(MatA, MatB, MatC, m, k, n);
+        function(MatA, MatB, MatC, m, k, n);
         return;
     }
 
@@ -422,12 +432,12 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 }
 
 // This Strassen only works for 2^n square matrices
-void StrassenQuad(double *MatA, double *MatB, double *MatC, int s) {
+void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n)) {
     // Matrix A m*k, Matrix B k*n --> Matrix C m*n
     //1. If size >> MIN_STRASSEN_SIZE Divide MatA, MatB and MatC in four sub mats
     
     if (s <= MIN_STRASSEN_SIZE) {
-        Transposed(MatA, MatB, MatC, s, s, s);
+        function(MatA, MatB, MatC, s, s, s);
         return;
     }
     //1.1 Zero pad if necessary
