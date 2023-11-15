@@ -13,12 +13,12 @@ likwid-perfctr -C 0 -g FLOPS_DP (oder L2 oder L2CACHE) -m ./matmul matrices/test
 #include <vector>
 #include <fstream>
 #include <string>
-
+/*
 extern "C" {
 #include <mkl_cblas.h>
 #include <mkl.h>
 }
-
+*/
 #ifdef USE_LIKWID
 extern "C" {
 #include <likwid.h>
@@ -35,7 +35,7 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void transpose(double *mat, int m, int k, double *mat_t);
-void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n);
+void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n));
 void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n));
 void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n));
 void null_matrix(double *MatC, int size);
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]){
 
     //Decide which implementation to use
     if (var == ""){
-        use_Strassen(MatA, MatB, MatC, m, k, n);
+        use_Strassen(MatA, MatB, MatC, m, k, n, Transposed);
     }
     if (var == "STD"){
         use_naive(MatA, MatB, MatC, m, k, n);
@@ -175,7 +175,7 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         for( int i = 0; i < runs; ++i ) {
-            cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m);
+            //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m);
         }
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
@@ -265,7 +265,7 @@ void transpose(double *mat, int m, int k, double *mat_t) {
     }
 }
 
-void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
+void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n)) {
     
     double time = 100.0;
     siwir::Timer timer;
@@ -283,8 +283,8 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n)
         bool is_squared = (size == m && size == k && size == n);
         for( int i = 0; i < runs; ++i ) {
             // if both are squared we can use StrassenQuad for better performance
-            if (is_squared) StrassenQuad(MatA, MatB, MatC, size);
-            else Strassen(MatA, MatB, MatC, m, k, n);
+            if (is_squared) StrassenQuad(MatA, MatB, MatC, size, function);
+            else Strassen(MatA, MatB, MatC, m, k, n, function);
         }
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
@@ -397,13 +397,13 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
     double *M6 = M1+(sizesquared * 5); // (A21 - A11)(B11 + B12)
     double *M7 = M1+(sizesquared * 6); // (A12 - A22)(B21 + B22)
     //2. recall self with smaller mats
-    StrassenQuad(A11pA22, B11pB22, M1, size);
-    StrassenQuad(A21pA22, B11, M2, size);
-    StrassenQuad(A11, B12mB22, M3, size);
-    StrassenQuad(A22, B21mB11, M4, size);
-    StrassenQuad(A11pA12, B22, M5, size);
-    StrassenQuad(A21mA11, B11pB12, M6, size);
-    StrassenQuad(A12mA22, B21pB22, M7, size);
+    StrassenQuad(A11pA22, B11pB22, M1, size, function);
+    StrassenQuad(A21pA22, B11, M2, size, function);
+    StrassenQuad(A11, B12mB22, M3, size, function);
+    StrassenQuad(A22, B21mB11, M4, size, function);
+    StrassenQuad(A11pA12, B22, M5, size, function);
+    StrassenQuad(A21mA11, B11pB12, M6, size, function);
+    StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A12pA22 + all following matrices
     delete [] A11pA22;
     //3. "rebuild" MatC
@@ -517,13 +517,13 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
     double *M6 = M1+(sizesquared * 5); // (A21 - A11)(B11 + B12)
     double *M7 = M1+(sizesquared * 6); // (A12 - A22)(B21 + B22)
     //2. recall self with smaller mats
-    StrassenQuad(A11pA22, B11pB22, M1, size);
-    StrassenQuad(A21pA22, B11, M2, size);
-    StrassenQuad(A11, B12mB22, M3, size);
-    StrassenQuad(A22, B21mB11, M4, size);
-    StrassenQuad(A11pA12, B22, M5, size);
-    StrassenQuad(A21mA11, B11pB12, M6, size);
-    StrassenQuad(A12mA22, B21pB22, M7, size);
+    StrassenQuad(A11pA22, B11pB22, M1, size, function);
+    StrassenQuad(A21pA22, B11, M2, size, function);
+    StrassenQuad(A11, B12mB22, M3, size, function);
+    StrassenQuad(A22, B21mB11, M4, size, function);
+    StrassenQuad(A11pA12, B22, M5, size, function);
+    StrassenQuad(A21mA11, B11pB12, M6, size, function);
+    StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A11pA22 + all following matrices
     delete [] A11pA22;
     //3. "rebuild" MatC
