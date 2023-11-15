@@ -29,7 +29,7 @@ Bei beiden Methoden gilt: sind die Matrizen kleiner als eine bestimmte Größe M
     Zunächst padden wir unsere Matrizen auf die nächst größere 2^n-Matrix, indem wir uns mit Pointern merken, wo im Array welcher Matrix-Bereich anfängt und an die "neuen Stellen", die durchs Padden hinzukommen, Nullen ergänzen und die restlichen Einträge entsprechend kopieren
 
     Anschließend wird die Methode rekursiv aufgerufen um die Matrix in immer kleinere Untermatrizen zu teilen und berechnet mithilfe der 7 Grundadditionen und -multiplikationen die Werte
-    Anschließend setzen wir die Ergebnismatrix aus den verschiedenen Berechnungen wieder zusammen
+    Zum Schluss setzen wir die Ergebnismatrix aus den verschiedenen Berechnungen wieder zusammen
 
 -> nicht quadratisch: Strassen
     
