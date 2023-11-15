@@ -5,7 +5,7 @@ Aufruf: ./matmul testMatrix1 testMatrix2 OutputMatrix VAR
 Je nach VAR wird eine andere Strategie zur Berechnung der Matrix-Multiplikation gewählt 
 Beim Einlesen der Argumente wird VAR gespeichert und ausgewertet und dann wird die entsprechende Methode zur Berechnung aufgerufen.
 
-Es gibt folgende Optionen für VAR: 
+-> Es gibt folgende Optionen für VAR: 
 
 ### STD - Naiver Algorithmus
 Matrix-Multiplikation wird mit Hilfe von 3 FOR-Schleifen durchgeführt
