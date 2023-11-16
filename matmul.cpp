@@ -17,9 +17,11 @@ likwid-perfctr -C 0 -g FLOPS_DP (oder L2 oder L2CACHE) -m ./matmul matrices/test
 #ifdef _WIN32
 #include <Windows.h>
 #define SLEEP Sleep
+#define SLEEPTIME 2000
 #else
 #include <unistd.h>
 #define SLEEP sleep
+#define SLEEPTIME 2
 #endif
 
 /*
@@ -142,7 +144,7 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         naive(MatA, MatB, MatC, m, k, n);
-        SLEEP(2000);
+        SLEEP(SLEEPTIME);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -180,7 +182,7 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m);
-        SLEEP(2000);
+        SLEEP(SLEEPTIME);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -207,7 +209,7 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         Transposed(MatA, MatB, MatC, m, k, n);
-        SLEEP(2000);
+        SLEEP(SLEEPTIME);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -285,7 +287,7 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
         // if both are squared we can use StrassenQuad for better performance
         if (is_squared) StrassenQuad(MatA, MatB, MatC, size, function);
         else Strassen(MatA, MatB, MatC, m, k, n, function);
-        SLEEP(2000);
+        SLEEP(SLEEPTIME);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -405,7 +407,7 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
     StrassenQuad(A21mA11, B11pB12, M6, size, function);
     StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A12pA22 + all following matrices
-    //delete [] A11pA22;
+    delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
@@ -525,7 +527,7 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
     StrassenQuad(A21mA11, B11pB12, M6, size, function);
     StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A11pA22 + all following matrices
-    //delete [] A11pA22;
+    delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
