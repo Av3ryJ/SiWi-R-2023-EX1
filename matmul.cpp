@@ -13,6 +13,13 @@ likwid-perfctr -C 0 -g FLOPS_DP (oder L2 oder L2CACHE) -m ./matmul matrices/test
 #include <vector>
 #include <fstream>
 #include <string>
+
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 /*
 extern "C" {
 #include <mkl_cblas.h>
@@ -25,8 +32,7 @@ extern "C" {
 }
 #endif
 
-#define MIN_STRASSEN_SIZE 16
-#define RUNS_PER_TIMING_FACTOR 4096
+#define MIN_STRASSEN_SIZE 32
 #define TIMING_RUNS 1
 
 void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n);
@@ -126,7 +132,6 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     
     double time = 100.0;
     siwir::Timer timer;
-    int runs = (int) RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "naiv" );
@@ -134,15 +139,14 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
-        for( int i = 0; i < runs; ++i ) {
-            naive(MatA, MatB, MatC, m, k, n);
-        }
+        naive(MatA, MatB, MatC, m, k, n);
+        sleep(2);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
         }
     }
-    time /= runs;
+    time -= 2;
     std::cout << time << " STD" << std::endl;
 
     #ifdef USE_LIKWID
@@ -166,7 +170,6 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 
     double time = 100.0;
     siwir::Timer timer;
-    int runs = (int) RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "blas" );
@@ -174,16 +177,15 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
-        for( int i = 0; i < runs; ++i ) {
-            //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m);
-        }
+        //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m);
+        sleep(2);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
         }
     }
-    time /= runs;
-    std::cout << time << " STD" << std::endl;
+    time -= 2;
+    std::cout << time << " BLAS" << std::endl;
 
     #ifdef USE_LIKWID
         likwid_markerStopRegion( "blas" );
@@ -195,7 +197,6 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
     
     double time = 100.0;
     siwir::Timer timer;
-    int runs = (int) RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "transposed" );
@@ -203,15 +204,14 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
-        for( int i = 0; i < runs; ++i ) {
-            Transposed(MatA, MatB, MatC, m, k, n);
-        }
+        Transposed(MatA, MatB, MatC, m, k, n);
+        sleep(2);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
         }
     }
-    time /= runs;
+    time -= 2;
     std::cout << time << " OPT1" << std::endl;
 
     #ifdef USE_LIKWID
@@ -269,7 +269,6 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
     
     double time = 100.0;
     siwir::Timer timer;
-    int runs = (int) RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "strassen" );
@@ -281,17 +280,16 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
         int size = 2;
         while (m > size) size *=2;
         bool is_squared = (size == m && size == k && size == n);
-        for( int i = 0; i < runs; ++i ) {
-            // if both are squared we can use StrassenQuad for better performance
-            if (is_squared) StrassenQuad(MatA, MatB, MatC, size, function);
-            else Strassen(MatA, MatB, MatC, m, k, n, function);
-        }
+        // if both are squared we can use StrassenQuad for better performance
+        if (is_squared) StrassenQuad(MatA, MatB, MatC, size, function);
+        else Strassen(MatA, MatB, MatC, m, k, n, function);
+        sleep(2);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
         }
     }
-    time /= runs;
+    time -= 2;
     std::cout << time << " OPT2/3" << std::endl;
 
     #ifdef USE_LIKWID
