@@ -11,12 +11,12 @@ kw = dict(xycoords='data', textcoords="axes fraction",
           arrowprops=arrowprops, bbox=bbox_props, ha="right", va="top")
 
 
-blocksizes = [32, 64, 128, 256, 512, 1024]
+blocksizes = [4, 8, 16, 32, 64, 128, 256, 512, 1024]
 json_for_strassen = "./strassen.json"
 loaded_strassen = {"OPT2": [0. for j in blocksizes], "OPT3": [0. for i in blocksizes]}
 
 binary = "./matmul.exe"
-sizes = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+sizes = [32, 64, 128, 256, 512, 1024, 2048]
 options = ["STD", "BLAS", "OPT1", "OPT2", "OPT3"]
 matrix_folder = "./matrices/perfMatrices"
 json_name = "./times.json"
