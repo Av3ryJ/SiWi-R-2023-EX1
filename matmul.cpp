@@ -16,8 +16,10 @@ likwid-perfctr -C 0 -g FLOPS_DP (oder L2 oder L2CACHE) -m ./matmul matrices/test
 
 #ifdef _WIN32
 #include <Windows.h>
+#define SLEEP Sleep
 #else
 #include <unistd.h>
+#define SLEEP sleep
 #endif
 
 /*
@@ -32,7 +34,7 @@ extern "C" {
 }
 #endif
 
-#define MIN_STRASSEN_SIZE 256
+#define MIN_STRASSEN_SIZE 1024
 #define TIMING_RUNS 1
 
 void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n);
@@ -140,7 +142,7 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         naive(MatA, MatB, MatC, m, k, n);
-        Sleep(2000);
+        SLEEP(2000);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -178,7 +180,7 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m);
-        Sleep(2000);
+        SLEEP(2000);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -205,7 +207,7 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         Transposed(MatA, MatB, MatC, m, k, n);
-        Sleep(2000);
+        SLEEP(2000);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -283,7 +285,7 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
         // if both are squared we can use StrassenQuad for better performance
         if (is_squared) StrassenQuad(MatA, MatB, MatC, size, function);
         else Strassen(MatA, MatB, MatC, m, k, n, function);
-        Sleep(2000);
+        SLEEP(2000);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -403,7 +405,7 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
     StrassenQuad(A21mA11, B11pB12, M6, size, function);
     StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A12pA22 + all following matrices
-    delete [] A11pA22;
+    //delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
@@ -426,7 +428,7 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
         }
     }
     //free M1 + all following matrices
-    delete [] M1;
+    //delete [] M1;
 }
 
 // This Strassen only works for 2^n square matrices
@@ -523,7 +525,7 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
     StrassenQuad(A21mA11, B11pB12, M6, size, function);
     StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A11pA22 + all following matrices
-    delete [] A11pA22;
+    //delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
@@ -541,5 +543,5 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
         }
     }
     //free M1 + all following matrices
-    delete [] M1;
+    //delete [] M1;
 }
