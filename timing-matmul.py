@@ -11,7 +11,7 @@ kw = dict(xycoords='data', textcoords="axes fraction",
           arrowprops=arrowprops, bbox=bbox_props, ha="right", va="top")
 
 
-blocksizes = [4, 8, 16, 32, 64, 128, 256, 512, 1024]
+blocksizes = [16, 32, 64, 128, 256, 512, 1024]
 json_for_strassen = "./strassen.json"
 loaded_strassen = {"OPT2": [0. for j in blocksizes], "OPT3": [0. for i in blocksizes]}
 
@@ -102,7 +102,7 @@ def plot_by_option():
     axs[2, 1].plot(np.log2(blocksizes), array)
     array = loaded_strassen["OPT3"]
     axs[2, 1].plot(np.log2(blocksizes), array)
-    axs[2, 1].set_ylim(bottom=10, top=35)
+    axs[2, 1].set_ylim(bottom=12, top=30)
     axs[2, 1].set_title("Speed of OPT2/3 with different minimal sizes")
 
     for i in range(3):

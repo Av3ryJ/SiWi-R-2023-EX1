@@ -36,7 +36,7 @@ extern "C" {
 }
 #endif
 
-#define MIN_STRASSEN_SIZE 1024
+#define MIN_STRASSEN_SIZE 64
 #define TIMING_RUNS 1
 
 void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n);
