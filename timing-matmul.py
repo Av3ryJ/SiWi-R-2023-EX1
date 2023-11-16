@@ -102,15 +102,15 @@ def plot_by_option():
     axs[2, 1].plot(np.log2(blocksizes), array)
     array = loaded_strassen["OPT3"]
     axs[2, 1].plot(np.log2(blocksizes), array)
-    axs[2, 1].set_ylim(bottom=0, top=max_y)
-    axs[2, 1].set_title("Option: ---")
+    axs[2, 1].set_ylim(bottom=10, top=35)
+    axs[2, 1].set_title("Speed of OPT2/3 with different minimal sizes")
 
     for i in range(3):
         for j in range(2):
             axs[i, j].set_xlabel("Matrix size in log2")
             axs[i, j].set_ylabel("Runtime in seconds")
 
-    # TODO: plot strassen
+    axs[2, 1].set_xlabel("Smallest size for division in log2")
 
     fig.tight_layout()
     plt.show()
