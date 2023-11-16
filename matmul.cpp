@@ -25,7 +25,7 @@ extern "C" {
 }
 #endif
 
-#define MIN_STRASSEN_SIZE 256
+#define MIN_STRASSEN_SIZE 16
 #define RUNS_PER_TIMING_FACTOR 4096
 #define TIMING_RUNS 1
 
@@ -126,7 +126,7 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     
     double time = 100.0;
     siwir::Timer timer;
-    double runs = RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
+    int runs = (int) RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "naiv" );
@@ -166,7 +166,7 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 
     double time = 100.0;
     siwir::Timer timer;
-    double runs = RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
+    int runs = (int) RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "blas" );
@@ -195,7 +195,7 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
     
     double time = 100.0;
     siwir::Timer timer;
-    double runs = RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
+    int runs = (int) RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "transposed" );
@@ -269,7 +269,7 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
     
     double time = 100.0;
     siwir::Timer timer;
-    double runs = RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
+    int runs = (int) RUNS_PER_TIMING_FACTOR/std::max(m, std::max(k, n));
     #ifdef USE_LIKWID
         likwid_markerInit();
         likwid_markerStartRegion( "strassen" );
@@ -292,7 +292,7 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
         }
     }
     time /= runs;
-    std::cout << time << " OPT2" << std::endl;
+    std::cout << time << " OPT2/3" << std::endl;
 
     #ifdef USE_LIKWID
         likwid_markerStopRegion( "strassen" );
