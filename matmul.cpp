@@ -407,7 +407,7 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
     StrassenQuad(A21mA11, B11pB12, M6, size, function);
     StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A12pA22 + all following matrices
-    delete [] A11pA22;
+    //delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
@@ -527,7 +527,7 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
     StrassenQuad(A21mA11, B11pB12, M6, size, function);
     StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A11pA22 + all following matrices
-    delete [] A11pA22;
+    //delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
