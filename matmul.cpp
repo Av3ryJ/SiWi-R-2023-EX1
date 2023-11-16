@@ -32,7 +32,7 @@ extern "C" {
 }
 #endif
 
-#define MIN_STRASSEN_SIZE 32
+#define MIN_STRASSEN_SIZE 256
 #define TIMING_RUNS 1
 
 void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n);
@@ -140,7 +140,7 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         naive(MatA, MatB, MatC, m, k, n);
-        sleep(2);
+        Sleep(2000);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -178,7 +178,7 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m);
-        sleep(2);
+        Sleep(2000);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -205,7 +205,7 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
         Transposed(MatA, MatB, MatC, m, k, n);
-        sleep(2);
+        Sleep(2000);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);
@@ -283,7 +283,7 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
         // if both are squared we can use StrassenQuad for better performance
         if (is_squared) StrassenQuad(MatA, MatB, MatC, size, function);
         else Strassen(MatA, MatB, MatC, m, k, n, function);
-        sleep(2);
+        Sleep(2000);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
             null_matrix(MatC, m*n);

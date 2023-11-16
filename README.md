@@ -24,17 +24,15 @@ Anschließend werden die erste Matrix und die transponierte Matrix naiv multipli
 Hier unterscheiden wir zunächst einmal, ob die gegebenen Matrizen quadratisch sind und verwenden je nach dem eine andere Methode
 Bei beiden Methoden gilt: sind die Matrizen kleiner als eine bestimmte Größe MIN_STRASSEN_SIZE, lohnt sich der Strassen-Algorithmus nicht, daher verwenden wir dann die Naive Implementierung
  
- -> quadratisch: StrasseQuad:
-   
-    Zunächst padden wir unsere Matrizen auf die nächst größere 2^n-Matrix, indem wir uns mit Pointern merken, wo im Array welcher Matrix-Bereich anfängt und an die "neuen Stellen", die durchs Padden hinzukommen, Nullen ergänzen und die restlichen Einträge entsprechend kopieren
+ -> nicht quadratisch: Strassen
 
-    Anschließend wird die Methode rekursiv aufgerufen um die Matrix in immer kleinere Untermatrizen zu teilen und berechnet mithilfe der 7 Grundadditionen und -multiplikationen die Werte
-    Zum Schluss setzen wir die Ergebnismatrix aus den verschiedenen Berechnungen wieder zusammen
-
--> nicht quadratisch: Strassen
-    
-    Auch hier padden wir die Matrizen auf die nächste quadratische 2^n große Matrix, wobei hier unterschiedlich viele Reihen und Spalten hinzugefügt werden 
+    Wir padden die Matrizen auf die nächste quadratische 2^n große Matrix, wobei hier unterschiedlich viele Reihen und Spalten hinzugefügt werden 
     Danach verwenden wir die StrassenQuad-Methode, da der Algorithmus der gleiche ist, sobald die Matrizen eine quadratische, 2^n-Form besitzen
+
+ -> quadratisch: StrassenQuad:
+
+    Die Methode rekursiv aufgerufen um die Matrix in immer kleinere Untermatrizen zu teilen und berechnet mithilfe der 7 Grundadditionen und -multiplikationen die Werte
+    Zum Schluss setzen wir die Ergebnismatrix aus den verschiedenen Berechnungen wieder zusammen
 
 ### OPT3 - kombiniert Strassen und Transposed
 Funktioniert an sich wie der Strassen-Algorithmus, nur dass hier die Transposed-Variante zur restlichen Berechnung verwendet wird, sobald die Matrizen, mit denen wir rechnen eine bestimmte Größe unterschreiten
