@@ -14,6 +14,7 @@ likwid-perfctr -C 0 -g FLOPS_DP (oder L2 oder L2CACHE) -m ./matmul matrices/test
 #include <fstream>
 #include <string>
 
+//Sleep is different on different OS
 #ifdef _WIN32
 #include <Windows.h>
 #define SLEEP Sleep
@@ -35,8 +36,8 @@ extern "C" {
 }
 #endif
 
-#define MIN_STRASSEN_SIZE 64
-#define TIMING_RUNS 1
+#define MIN_STRASSEN_SIZE 64 //Matrices of this size or smaller are not calculated by Strassen/StrassenQuad but by naive or Transposed
+#define TIMING_RUNS 10 //How many time samples are taken
 
 void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n);
 void naive(double *MatA, double *MatB, double *MatC, int m, int k, int n);
@@ -161,7 +162,6 @@ void use_naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 }
 
 void naive(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
-    // the next for is needed bc timer.h is too slow to track small multiplications
     for(int zeilenC=0; zeilenC<m; ++zeilenC){
         for(int spaltenC=0; spaltenC<n; ++spaltenC){
             for(int spaltenA=0; spaltenA<k; ++spaltenA){ //spaltenA = zeilenB
@@ -248,7 +248,7 @@ void transpose(double *mat, int m, int k, double *mat_t) {
     if (blocksize == 0) blocksize = 1;
     int rest = k%blocksize;
 
-    //blocking for majority of matrix
+    //blocking for the majority of matrix
     for (int row = 0; row < m; row+=blocksize) {
         for (int col = 0; col < k; col+=blocksize) {
             for (int r = 0; r < blocksize; r++) {
@@ -279,7 +279,7 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
-        // check if MatA and Matb are 2^n squared matrices
+        // check if MatA and MatB are 2^n squared matrices
         int size = 2;
         while (m > size) size *=2;
         bool is_squared = (size == m && size == k && size == n);
@@ -303,8 +303,8 @@ void use_Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n,
 
 void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n)) {
     // Matrix A m*k, Matrix B k*n --> Matrix C m*n
+
     //1. If size >> MIN_STRASSEN_SIZE Divide MatA, MatB and MatC in four sub mats
-    
     if (m <= MIN_STRASSEN_SIZE || k <= MIN_STRASSEN_SIZE || n <= MIN_STRASSEN_SIZE) {
         function(MatA, MatB, MatC, m, k, n);
         return;
@@ -317,8 +317,8 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
     size /= 2; // size of the four sub-matrices
     int sizesquared = size * size;
     //1.2 Divide
-    //Only malloc one large array to save time
 
+    //Only malloc one large array to save time
     double *A11pA22 = new double[sizesquared * 14]; // A11 + A22
     double *B11pB22 = A11pA22+(sizesquared * 1); // B11 + B22
     double *A21pA22 = A11pA22+(sizesquared * 2); // etc.
@@ -334,7 +334,7 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
     double *B11 = A11pA22+(sizesquared * 12);
     double *B22 = A11pA22+(sizesquared * 13);
 
-    //populate with padding if necessary
+    //defining values for loop
     int off_r;
     int off_c;
     double val_A11;
@@ -350,10 +350,10 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
     bool rgeqk; //row greater or equal k
     bool orgeqk;
     int index = 0;
-
+    //populate matrices with values and padding if necessary
     for (int row = 0; row < size; ++row){
         off_r = row+size;
-        //compare here and not in iteration
+        //compare here and not in next iteration
         rgeqm = row >= m;
         orgeqm = off_r >= m;
         rgeqk = row >= k;
@@ -406,7 +406,7 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
     StrassenQuad(A21mA11, B11pB12, M6, size, function);
     StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A12pA22 + all following matrices
-    //delete [] A11pA22;
+    //delete [] A11pA22; //if we delete here we have problems. no idea why
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
@@ -429,10 +429,11 @@ void Strassen(double *MatA, double *MatB, double *MatC, int m, int k, int n, voi
         }
     }
     //free M1 + all following matrices
-    //delete [] M1;
+    //delete [] M1; //same as delete above
 }
 
 // This Strassen only works for 2^n square matrices
+// implementation is the same, except we don't check for necessary padding and assume square mats of size s^2
 void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*function)(double *MatA, double *MatB, double *MatC, int m, int k, int n)) {
     // Matrix A m*k, Matrix B k*n --> Matrix C m*n
     //1. If size >> MIN_STRASSEN_SIZE Divide MatA, MatB and MatC in four sub mats
