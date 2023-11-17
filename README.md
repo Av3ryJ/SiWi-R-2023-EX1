@@ -1,8 +1,8 @@
 # Matrix-Matrix-Multiplikation mit Optimierungen 
 
-Aufruf: ./matmul testMatrix1 testMatrix2 OutputMatrix VAR
+Aufruf: ./matmul testMatrix1 testMatrix2 OutputFile VAR
 
-Je nach VAR wird eine andere Strategie zur Berechnung der Matrix-Multiplikation gewählt 
+Je nach VAR wird eine andere Strategie zur Berechnung der Matrix-Multiplikation gewählt. 
 Beim Einlesen der Argumente wird VAR gespeichert und ausgewertet und dann wird die entsprechende Methode zur Berechnung aufgerufen.
 
 -> Es gibt folgende Optionen für VAR: 
@@ -35,5 +35,5 @@ Bei beiden Methoden gilt: sind die Matrizen kleiner als eine bestimmte Größe M
     Zum Schluss setzen wir die Ergebnismatrix aus den verschiedenen Berechnungen wieder zusammen
 
 ### OPT3 - kombiniert Strassen und Transposed
-Funktioniert an sich wie der Strassen-Algorithmus, nur dass hier die Transposed-Variante zur restlichen Berechnung verwendet wird, sobald die Matrizen, mit denen wir rechnen eine bestimmte Größe unterschreiten
+Funktioniert an sich wie der Strassen-Algorithmus, nur dass hier die Transposed-Variante zur restlichen Berechnung verwendet wird, sobald die Matrizen, mit denen wir rechnen eine bestimmte Größe (MIN_STRASSEN_SIZE) unterschreiten
 
