@@ -10,17 +10,23 @@ arrowprops=dict(arrowstyle="->", connectionstyle="arc")
 kw = dict(xycoords='data', textcoords="axes fraction",
           arrowprops=arrowprops, bbox=bbox_props, ha="right", va="top")
 
-
+# stuff for strassen
 blocksizes = [16, 32, 64, 128, 256, 512, 1024]
 json_for_strassen = "./strassen.json"
 loaded_strassen = {"OPT2": [0. for j in blocksizes], "OPT3": [0. for i in blocksizes]}
 
+# stuff for timing plot
 binary = "./matmul.exe"
 sizes = [32, 64, 128, 256, 512, 1024, 2048]
 options = ["STD", "BLAS", "OPT1", "OPT2", "OPT3"]
 matrix_folder = "./matrices/perfMatrices"
 json_name = "./times.json"
 loaded_json = {option: {size: 0. for size in sizes} for option in options}
+
+# stuff for likwid
+likwid_datatypes = ["L2-Bandwidth", "FLOPS", "Misses"]
+json_for_likwid = "./likwid.json"
+loaded_likwid = {data: {option: {size: 0. for size in sizes} for option in options} for data in likwid_datatypes}
 
 
 def run_matmul(bin, mat1, mat2, outfile, option):
@@ -66,7 +72,7 @@ def plot_by_option():
         max_y = max(max_y, max(get_array_for_option(option)))
     max_y *= 1.1
 
-    fig, axs = plt.subplots(2, 1)
+    fig, axs = plt.subplots(4, 1)
 
     array = get_array_for_option("STD")
     axs[0].plot(np.log2(sizes), array, label="STD")
@@ -84,7 +90,8 @@ def plot_by_option():
 
     array = get_array_for_option("OPT3")
     axs[0].plot(np.log2(sizes), array, label="Strassen + Transposed")
-
+    axs[0].set_ylabel("Runtime in seconds")
+    """
     array = loaded_strassen["OPT2"]
     axs[1].plot(np.log2(blocksizes), array, label="Strassen + STD")
     array = loaded_strassen["OPT3"]
@@ -92,12 +99,22 @@ def plot_by_option():
     axs[1].set_ylim(bottom=12, top=30)
     axs[1].set_title("Speed of Strassen with different minimal sizes")
     axs[1].annotate(f"min at 5^2 matrices", xy=(5, array[1]), xytext=(0.3, 0.5), **kw)
+    """
+    # likwid plots
+    counter = 1
+    for data, Layer1 in loaded_likwid.items():
+        for option, Layer2 in Layer1.items():
+            value_array = []
+            for size, value in Layer2.items():
+                value_array.append(value)
+            axs[counter].plot(np.log2(sizes), value_array, label=f"{option}")
+        axs[counter].set_title(f"{data}")
+        counter += 1
 
-    for i in range(2):
+    for i in range(4):
         axs[i].set_xlabel("Matrix size in log2")
         axs[i].legend(loc="upper left")
 
-    axs[0].set_ylabel("Runtime in seconds")
 
 
     #axs[2, 1].set_xlabel("Smallest size for division in log2")
@@ -116,8 +133,10 @@ if __name__ == '__main__':
         with open(json_for_strassen, 'r') as file:
             loaded_strassen = json.load(file)
     else:
-        time_strassen(2048)
+        pass
+        #time_strassen(2048)
+    if p.exists(json_for_likwid):
+        with open(json_for_likwid, 'r') as file:
+            loaded_likwid = json.load(file)
 
     plot_by_option()
-
-
