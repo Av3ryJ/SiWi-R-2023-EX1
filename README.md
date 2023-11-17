@@ -5,6 +5,11 @@ Aufruf: ./matmul testMatrix1 testMatrix2 OutputFile VAR
 Je nach VAR wird eine andere Strategie zur Berechnung der Matrix-Multiplikation gewählt. 
 Beim Einlesen der Argumente wird VAR gespeichert und ausgewertet und dann wird die entsprechende Methode zur Berechnung aufgerufen.
 
+In matmul.cpp können nach den Imports noch TIMING_RUNS und MIN_STRASSEN_SIZE angepasst werden.
+- TIMING_RUNS: Jede Multiplikation wir TIMING_RUNS-mal ausgeführt und die geringste, gemessene Zeit wird ausgegeben.
+- MIN_STRASSEN_SIZE: Setzt die Abbruchbedingung für die Rekursion des Strassen-Algorithmus. Matritzen, die kleiner als
+MIN_STRASSEN_SIZE sind, werden von naive bzw. Transposed berechnet.
+
 -> Es gibt folgende Optionen für VAR: 
 
 ### STD - Naiver Algorithmus
@@ -12,7 +17,7 @@ Matrix-Multiplikation wird mit Hilfe von 3 FOR-Schleifen durchgeführt
 
 
 ### BLAS - mit BLAS-Library
-Benutzt zur Berechnung die Blas-Library-Funktion cblas_gemm
+Benutzt zur Berechnung die Blas-Library-Funktion cblas_degemm
 
 
 ### OPT1 - Transposed
