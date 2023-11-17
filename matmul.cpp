@@ -228,16 +228,14 @@ void use_Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int 
 void Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
     double *B_transposed = new double [k*n];
     transpose(MatB, k, n, B_transposed);
-    
-    for( int i = 0; i < 1; ++i ){ // TODO: change back to 10000
-        for(int zeilenC=0; zeilenC<m; ++zeilenC){
-            for(int spaltenC=0; spaltenC<n; ++spaltenC){
-                for(int spaltenA=0; spaltenA<k; ++spaltenA){
-                    MatC[n*zeilenC + spaltenC] += MatA[k*zeilenC + spaltenA] * B_transposed[k*spaltenC + spaltenA];
-                }
+    for(int zeilenC=0; zeilenC<m; ++zeilenC){
+        for(int spaltenC=0; spaltenC<n; ++spaltenC){
+            for(int spaltenA=0; spaltenA<k; ++spaltenA){
+                MatC[n*zeilenC + spaltenC] += MatA[k*zeilenC + spaltenA] * B_transposed[k*spaltenC + spaltenA];
             }
         }
     }
+
     //free B_transposed
     delete [] B_transposed;
 }
@@ -528,7 +526,7 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
     StrassenQuad(A21mA11, B11pB12, M6, size, function);
     StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A11pA22 + all following matrices
-    delete [] A11pA22;
+    //delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
@@ -546,5 +544,5 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
         }
     }
     //free M1 + all following matrices
-    delete [] M1;
+    //delete [] M1;
 }
