@@ -24,12 +24,11 @@ likwid-perfctr -C 0 -g FLOPS_DP (oder L2 oder L2CACHE) -m ./matmul matrices/test
 #define SLEEPTIME 2
 #endif
 
-/*
 extern "C" {
 #include <mkl_cblas.h>
 #include <mkl.h>
 }
-*/
+
 #ifdef USE_LIKWID
 extern "C" {
 #include <likwid.h>
@@ -51,6 +50,8 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
 void null_matrix(double *MatC, int size);
 
 int main(int argc, char* argv[]){
+    mkl_set_num_threads(1);
+
     int m;
     int k;
     int n;
@@ -87,7 +88,7 @@ int main(int argc, char* argv[]){
     std::string outfile = argv[3];
     //read in VAR if given
     std::string var = "";
-    if (argc == 5) {
+    if (argc >= 5) {
         var = argv[4];
     }
 
@@ -181,7 +182,7 @@ void use_blas(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 
     for( int x = 0; x < TIMING_RUNS; ++x ) {
         timer.reset();
-        //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, m, MatB, n, 0.0, MatC, m);
+        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1.0, MatA, k, MatB, n, 0.0, MatC, n);
         SLEEP(SLEEPTIME);
         time = std::min(time, timer.elapsed());
         if (x != TIMING_RUNS - 1) {
@@ -527,7 +528,7 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
     StrassenQuad(A21mA11, B11pB12, M6, size, function);
     StrassenQuad(A12mA22, B21pB22, M7, size, function);
     //free A11pA22 + all following matrices
-    //delete [] A11pA22;
+    delete [] A11pA22;
     //3. "rebuild" MatC
     index = 0;
     for (int row = 0; row < size; ++row){
@@ -545,5 +546,5 @@ void StrassenQuad(double *MatA, double *MatB, double *MatC, int s, void (*functi
         }
     }
     //free M1 + all following matrices
-    //delete [] M1;
+    delete [] M1;
 }

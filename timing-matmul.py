@@ -66,7 +66,7 @@ def get_array_for_option(option):
     return out
 
 
-def plot_by_option():
+def plot():
     max_y = 0
     for option in options:
         max_y = max(max_y, max(get_array_for_option(option)))
@@ -76,7 +76,8 @@ def plot_by_option():
 
     array = get_array_for_option("STD")
     axs[0].plot(np.log2(sizes), array, label="STD")
-    axs[0].set_ylim(bottom=0, top=max_y)
+    axs[0].set_ylim(bottom=0, top=15)
+    axs[0].annotate("STD time is ~50s", xy=(10, 14), xytext=(0.7, 0.7), **kw)
     axs[0].set_title("Runtime for different Implementations and matrix sizes")
 
     array = get_array_for_option("BLAS")
@@ -101,14 +102,18 @@ def plot_by_option():
     axs[1].annotate(f"min at 5^2 matrices", xy=(5, array[1]), xytext=(0.3, 0.5), **kw)
     """
     # likwid plots
+    ylabels = {"L2-Bandwidth": "MBytes/second", "FLOPS": "MFLOP/second", "Misses": "L2 miss rate in %"}
     counter = 1
     for data, Layer1 in loaded_likwid.items():
         for option, Layer2 in Layer1.items():
             value_array = []
             for size, value in Layer2.items():
                 value_array.append(value)
+            if data == "Misses":
+                value_array = [v*100 for v in value_array]
             axs[counter].plot(np.log2(sizes), value_array, label=f"{option}")
         axs[counter].set_title(f"{data}")
+        axs[counter].set_ylabel(ylabels[data])
         counter += 1
 
     for i in range(4):
@@ -133,10 +138,9 @@ if __name__ == '__main__':
         with open(json_for_strassen, 'r') as file:
             loaded_strassen = json.load(file)
     else:
-        pass
-        #time_strassen(2048)
+        pass #time_strassen(2048)
     if p.exists(json_for_likwid):
         with open(json_for_likwid, 'r') as file:
             loaded_likwid = json.load(file)
 
-    plot_by_option()
+    plot()
