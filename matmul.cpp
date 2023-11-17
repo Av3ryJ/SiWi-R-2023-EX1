@@ -241,7 +241,7 @@ void Transposed(double *MatA, double *MatB, double *MatC, int m, int k, int n) {
 }
 
 void transpose(double *mat, int m, int k, double *mat_t) {
-    int blocksize = 16;
+    int blocksize = 128;
     for (; blocksize > 0; blocksize--) {
         if (m%blocksize == 0) break;
     }
