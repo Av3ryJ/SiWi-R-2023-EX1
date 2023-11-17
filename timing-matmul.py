@@ -66,51 +66,41 @@ def plot_by_option():
         max_y = max(max_y, max(get_array_for_option(option)))
     max_y *= 1.1
 
-    fig, axs = plt.subplots(3, 2)
+    fig, axs = plt.subplots(2, 1)
 
     array = get_array_for_option("STD")
-    axs[0, 0].plot(np.log2(sizes), array)
-    axs[0, 0].set_ylim(bottom=0, top=max_y)
-    axs[0, 0].annotate(f"{max(array)}s", xy=(11, max(array)), xytext=(0.8, 0.9), **kw)
-    axs[0, 0].set_title("Option: STD")
+    axs[0].plot(np.log2(sizes), array, label="STD")
+    axs[0].set_ylim(bottom=0, top=max_y)
+    axs[0].set_title("Runtime for different Implementations and matrix sizes")
 
     array = get_array_for_option("BLAS")
-    axs[0, 1].plot(np.log2(sizes), array)
-    axs[0, 1].set_ylim(bottom=0, top=max_y)
-    axs[0, 1].annotate(f"{max(array)}s", xy=(11, max(array)), xytext=(0.9, 0.9), **kw)
-    axs[0, 1].set_title("Option: Blas")
+    axs[0].plot(np.log2(sizes), array, label="BLAS")
 
     array = get_array_for_option("OPT1")
-    axs[1, 0].plot(np.log2(sizes), array)
-    axs[1, 0].set_ylim(bottom=0, top=max_y)
-    axs[1, 0].annotate(f"{max(array)}s", xy=(11, max(array)), xytext=(0.9, 0.9), **kw)
-    axs[1, 0].set_title("Option: OPT1")
+    axs[0].plot(np.log2(sizes), array, label="Transpose")
 
     array = get_array_for_option("OPT2")
-    axs[1, 1].plot(np.log2(sizes), array)
-    axs[1, 1].set_ylim(bottom=0, top=max_y)
-    axs[1, 1].annotate(f"{max(array)}s", xy=(11, max(array)), xytext=(0.9, 0.9), **kw)
-    axs[1, 1].set_title("Option: OPT2")
+    axs[0].plot(np.log2(sizes), array, label="Strassen")
 
     array = get_array_for_option("OPT3")
-    axs[2, 0].plot(np.log2(sizes), array)
-    axs[2, 0].set_ylim(bottom=0, top=max_y)
-    axs[2, 0].annotate(f"{max(array)}s", xy=(11, max(array)), xytext=(0.9, 0.9), **kw)
-    axs[2, 0].set_title("Option: OPT3")
+    axs[0].plot(np.log2(sizes), array, label="Strassen + Transposed")
 
     array = loaded_strassen["OPT2"]
-    axs[2, 1].plot(np.log2(blocksizes), array)
+    axs[1].plot(np.log2(blocksizes), array, label="Strassen + STD")
     array = loaded_strassen["OPT3"]
-    axs[2, 1].plot(np.log2(blocksizes), array)
-    axs[2, 1].set_ylim(bottom=12, top=30)
-    axs[2, 1].set_title("Speed of OPT2/3 with different minimal sizes")
+    axs[1].plot(np.log2(blocksizes), array, label="Strassen + Transposed")
+    axs[1].set_ylim(bottom=12, top=30)
+    axs[1].set_title("Speed of Strassen with different minimal sizes")
+    axs[1].annotate(f"min at 5^2 matrices", xy=(5, array[1]), xytext=(0.3, 0.5), **kw)
 
-    for i in range(3):
-        for j in range(2):
-            axs[i, j].set_xlabel("Matrix size in log2")
-            axs[i, j].set_ylabel("Runtime in seconds")
+    for i in range(2):
+        axs[i].set_xlabel("Matrix size in log2")
+        axs[i].legend(loc="upper left")
 
-    axs[2, 1].set_xlabel("Smallest size for division in log2")
+    axs[0].set_ylabel("Runtime in seconds")
+
+
+    #axs[2, 1].set_xlabel("Smallest size for division in log2")
 
     fig.tight_layout()
     plt.show()
