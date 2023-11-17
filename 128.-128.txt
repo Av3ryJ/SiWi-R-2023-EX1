@@ -1,0 +1,207 @@
+128-128
+STD
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0039 |
+| Runtime unhalted [s] |     0.0049 |
+|      Clock [MHz]     |  2777.8049 |
+|          CPI         |     0.6189 |
+|     DP [MFLOP/s]     |     2.0931 |
+|   AVX DP [MFLOP/s]   |          0 |
+|   Packed [MUOPS/s]   |          0 |
+|   Scalar [MUOPS/s]   |     2.0931 |
+|  Vectorization ratio |          0 |
++----------------------+------------+
+
++--------------------------------+------------+
+|             Metric             | HWThread 0 |
++--------------------------------+------------+
+|       Runtime (RDTSC) [s]      |     2.0036 |
+|      Runtime unhalted [s]      |     0.0044 |
+|           Clock [MHz]          |  2776.4886 |
+|               CPI              |     0.5715 |
+|  L2D load bandwidth [MBytes/s] |    71.1143 |
+|  L2D load data volume [GBytes] |     0.1425 |
+| L2D evict bandwidth [MBytes/s] |     0.2897 |
+| L2D evict data volume [GBytes] |     0.0006 |
+|     L2 bandwidth [MBytes/s]    |    71.5578 |
+|     L2 data volume [GBytes]    |     0.1434 |
++--------------------------------+------------+
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0033 |
+| Runtime unhalted [s] |     0.0087 |
+|      Clock [MHz]     |  2186.2410 |
+|          CPI         |     0.8802 |
+|    L2 request rate   |     0.1926 |
+|     L2 miss rate     |     0.0122 |
+|     L2 miss ratio    |     0.0633 |
++----------------------+------------+
+
+BLAS
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0173 |
+| Runtime unhalted [s] |     0.3169 |
+|      Clock [MHz]     |  2200.6804 |
+|          CPI         |     0.9472 |
+|     DP [MFLOP/s]     |     2.0805 |
+|   AVX DP [MFLOP/s]   |     2.0791 |
+|   Packed [MUOPS/s]   |     0.5198 |
+|   Scalar [MUOPS/s]   |     0.0013 |
+|  Vectorization ratio |    99.7430 |
++----------------------+------------+
++--------------------------------+------------+
+|             Metric             | HWThread 0 |
++--------------------------------+------------+
+|       Runtime (RDTSC) [s]      |     2.0047 |
+|      Runtime unhalted [s]      |     0.0047 |
+|           Clock [MHz]          |  2340.7310 |
+|               CPI              |     1.2416 |
+|  L2D load bandwidth [MBytes/s] |     5.2008 |
+|  L2D load data volume [GBytes] |     0.0104 |
+| L2D evict bandwidth [MBytes/s] |     0.6436 |
+| L2D evict data volume [GBytes] |     0.0013 |
+|     L2 bandwidth [MBytes/s]    |     7.2576 |
+|     L2 data volume [GBytes]    |     0.0145 |
++--------------------------------+------------+
+
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0170 |
+| Runtime unhalted [s] |     0.0036 |
+|      Clock [MHz]     |  1727.8705 |
+|          CPI         |     0.9869 |
+|    L2 request rate   |     0.0648 |
+|     L2 miss rate     |     0.0214 |
+|     L2 miss ratio    |     0.3307 |
++----------------------+------------+
+
+OPT1
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0037 |
+| Runtime unhalted [s] |     0.0028 |
+|      Clock [MHz]     |  1884.0080 |
+|          CPI         |     0.3660 |
+|     DP [MFLOP/s]     |     2.0933 |
+|   AVX DP [MFLOP/s]   |          0 |
+|   Packed [MUOPS/s]   |          0 |
+|   Scalar [MUOPS/s]   |     2.0933 |
+|  Vectorization ratio |          0 |
++----------------------+------------+
++--------------------------------+------------+
+|             Metric             | HWThread 0 |
++--------------------------------+------------+
+|       Runtime (RDTSC) [s]      |     2.0032 |
+|      Runtime unhalted [s]      |     0.0028 |
+|           Clock [MHz]          |  2079.7226 |
+|               CPI              |     0.3652 |
+|  L2D load bandwidth [MBytes/s] |     8.6450 |
+|  L2D load data volume [GBytes] |     0.0173 |
+| L2D evict bandwidth [MBytes/s] |     0.2978 |
+| L2D evict data volume [GBytes] |     0.0006 |
+|     L2 bandwidth [MBytes/s]    |     8.9887 |
+|     L2 data volume [GBytes]    |     0.0180 |
++--------------------------------+------------+
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0038 |
+| Runtime unhalted [s] |     0.0028 |
+|      Clock [MHz]     |  1786.5463 |
+|          CPI         |     0.3653 |
+|    L2 request rate   |     0.0249 |
+|     L2 miss rate     |     0.0009 |
+|     L2 miss ratio    |     0.0357 |
++----------------------+------------+
+
+OPT2
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0050 |
+| Runtime unhalted [s] |     0.0034 |
+|      Clock [MHz]     |  1689.8281 |
+|          CPI         |     0.4868 |
+|     DP [MFLOP/s]     |     1.8672 |
+|   AVX DP [MFLOP/s]   |          0 |
+|   Packed [MUOPS/s]   |     0.0082 |
+|   Scalar [MUOPS/s]   |     1.8509 |
+|  Vectorization ratio |     0.4396 |
++----------------------+------------+
+
++--------------------------------+------------+
+|             Metric             | HWThread 0 |
++--------------------------------+------------+
+|       Runtime (RDTSC) [s]      |     2.0045 |
+|      Runtime unhalted [s]      |     0.0034 |
+|           Clock [MHz]          |  1862.9286 |
+|               CPI              |     0.4897 |
+|  L2D load bandwidth [MBytes/s] |    12.5418 |
+|  L2D load data volume [GBytes] |     0.0251 |
+| L2D evict bandwidth [MBytes/s] |     1.8263 |
+| L2D evict data volume [GBytes] |     0.0037 |
+|     L2 bandwidth [MBytes/s]    |    14.4176 |
+|     L2 data volume [GBytes]    |     0.0289 |
++--------------------------------+------------+
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0039 |
+| Runtime unhalted [s] |     0.0034 |
+|      Clock [MHz]     |  2225.3297 |
+|          CPI         |     0.4917 |
+|    L2 request rate   |     0.0408 |
+|     L2 miss rate     |     0.0020 |
+|     L2 miss ratio    |     0.0481 |
++----------------------+------------+
+
+OPT3
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0041 |
+| Runtime unhalted [s] |     0.0028 |
+|      Clock [MHz]     |  1786.5472 |
+|          CPI         |     0.4033 |
+|     DP [MFLOP/s]     |     1.8680 |
+|   AVX DP [MFLOP/s]   |          0 |
+|   Packed [MUOPS/s]   |     0.0082 |
+|   Scalar [MUOPS/s]   |     1.8517 |
+|  Vectorization ratio |     0.4396 |
++----------------------+------------+
+
+
++--------------------------------+------------+
+|             Metric             | HWThread 0 |
++--------------------------------+------------+
+|       Runtime (RDTSC) [s]      |     2.0039 |
+|      Runtime unhalted [s]      |     0.0031 |
+|           Clock [MHz]          |  1895.9165 |
+|               CPI              |     0.4157 |
+|  L2D load bandwidth [MBytes/s] |     5.1718 |
+|  L2D load data volume [GBytes] |     0.0104 |
+| L2D evict bandwidth [MBytes/s] |     2.0109 |
+| L2D evict data volume [GBytes] |     0.0040 |
+|     L2 bandwidth [MBytes/s]    |     7.3146 |
+|     L2 data volume [GBytes]    |     0.0147 |
++--------------------------------+------------+
++----------------------+------------+
+|        Metric        | HWThread 0 |
++----------------------+------------+
+|  Runtime (RDTSC) [s] |     2.0039 |
+| Runtime unhalted [s] |     0.0028 |
+|      Clock [MHz]     |  1884.3266 |
+|          CPI         |     0.4034 |
+|    L2 request rate   |     0.0208 |
+|     L2 miss rate     |     0.0022 |
+|     L2 miss ratio    |     0.1044 |
++----------------------+------------+
+
+
