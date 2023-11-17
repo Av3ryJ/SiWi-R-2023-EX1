@@ -6,8 +6,8 @@ Je nach VAR wird eine andere Strategie zur Berechnung der Matrix-Multiplikation 
 Beim Einlesen der Argumente wird VAR gespeichert und ausgewertet und dann wird die entsprechende Methode zur Berechnung aufgerufen.
 
 In matmul.cpp können nach den Imports noch TIMING_RUNS und MIN_STRASSEN_SIZE angepasst werden.
-- TIMING_RUNS: Jede Multiplikation wir TIMING_RUNS-mal ausgeführt und die geringste, gemessene Zeit wird ausgegeben.
-- MIN_STRASSEN_SIZE: Setzt die Abbruchbedingung für die Rekursion des Strassen-Algorithmus. Matritzen, die kleiner als
+- TIMING_RUNS: Jede Multiplikation wir TIMING_RUNS-mal ausgeführt und die geringste gemessene Zeit wird ausgegeben.
+- MIN_STRASSEN_SIZE: Setzt die Abbruchbedingung für die Rekursion des Strassen-Algorithmus. Matrizen, die kleiner als
 MIN_STRASSEN_SIZE sind, werden von naive bzw. Transposed berechnet.
 
 -> Es gibt folgende Optionen für VAR: 
@@ -17,7 +17,7 @@ Matrix-Multiplikation wird mit Hilfe von 3 FOR-Schleifen durchgeführt
 
 
 ### BLAS - mit BLAS-Library
-Benutzt zur Berechnung die Blas-Library-Funktion cblas_degemm
+Benutzt zur Berechnung die Blas-Library-Funktion cblas_dgemm
 
 
 ### OPT1 - Transposed
@@ -38,6 +38,7 @@ Bei beiden Methoden gilt: sind die Matrizen kleiner als eine bestimmte Größe M
 
     Die Methode rekursiv aufgerufen um die Matrix in immer kleinere Untermatrizen zu teilen und berechnet mithilfe der 7 Grundadditionen und -multiplikationen die Werte
     Zum Schluss setzen wir die Ergebnismatrix aus den verschiedenen Berechnungen wieder zusammen
+
 
 ### OPT3 - kombiniert Strassen und Transposed
 Funktioniert an sich wie der Strassen-Algorithmus, nur dass hier die Transposed-Variante zur restlichen Berechnung verwendet wird, sobald die Matrizen, mit denen wir rechnen eine bestimmte Größe (MIN_STRASSEN_SIZE) unterschreiten
